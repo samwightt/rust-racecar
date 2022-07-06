@@ -96,13 +96,6 @@ pub enum CarError {
     /// Error while decoding Varint
     #[error(transparent)]
     VarintDecode(#[from] unsigned_varint::io::ReadError),
-    // /// Error while decoding Multihash
-    // #[error(transparent)]
-    // MultihashError(#[from] multihash::Error),
-
-    // /// Generic Error
-    // #[error(transparent)]
-    // GenericError(#[from] Box<dyn std::error::Error>),
 }
 
 /// CAR result.
