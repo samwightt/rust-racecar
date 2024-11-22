@@ -9,8 +9,7 @@ use std::io::{Cursor, Read, Seek};
 use thiserror::Error;
 use unsigned_varint::io::read_u64 as varint_read_u64;
 
-use libipld::{prelude::Codec, Ipld};
-use libipld_cbor::DagCborCodec;
+use libipld::{prelude::Codec, Ipld, cbor::DagCborCodec};
 
 const HEADER_LENGTH: usize = 40;
 const CHARACTERISTICS_LENGTH: usize = 16;
