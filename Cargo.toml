@@ -9,4 +9,4 @@ edition = "2021"
 byteorder = "1.5.0"
 libipld = "0.16.0"
 thiserror = "1.0.31"
-unsigned-varint = "0.7.1"
+unsigned-varint = {  version = "0.8.0", features = ["std"] }
