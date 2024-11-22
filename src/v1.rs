@@ -1,6 +1,5 @@
 use std::io::{Cursor, Read};
-use cid::Cid;
-use libipld::{Block, DefaultParams, Ipld};
+use libipld::{Block, DefaultParams, Ipld, cid::Cid};
 use crate::{CarError, CarResult};
 use unsigned_varint::io::read_u64 as varint_read_u64;
 

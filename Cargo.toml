@@ -6,8 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-byteorder = "1.4.3"
-cid = "0.8.5"
+byteorder = "1.5.0"
 libipld = "0.13.1"
 libipld-cbor = "0.13.1"
 thiserror = "1.0.31"

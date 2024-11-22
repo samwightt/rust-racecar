@@ -59,7 +59,7 @@ pub enum CarError {
 
     /// Cid error.
     #[error(transparent)]
-    Cid(#[from] cid::Error),
+    Cid(#[from] libipld::cid::Error),
 
     /// Error while decoding Varint
     #[error(transparent)]
@@ -161,7 +161,7 @@ mod tests {
 
                 assert_eq!(
                     carv2.car_v1.header.roots,
-                    vec![cid::Cid::from_str("QmfEoLyB5NndqeKieExd1rtJzTduQUPEV8TwAYcUiy3H5Z").unwrap(),]
+                    vec![libipld::cid::Cid::from_str("QmfEoLyB5NndqeKieExd1rtJzTduQUPEV8TwAYcUiy3H5Z").unwrap(),]
                 );
                 assert_eq!(carv2.car_v1.blocks.len(), 5);
             }
