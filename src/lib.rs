@@ -10,6 +10,7 @@ use thiserror::Error;
 use unsigned_varint::io::read_u64 as varint_read_u64;
 
 use libipld::{prelude::Codec, Ipld, cbor::DagCborCodec};
+use crate::v1::{CarHeaderV1, CarV1};
 
 const HEADER_LENGTH: usize = 40;
 const CHARACTERISTICS_LENGTH: usize = 16;
@@ -75,9 +76,9 @@ fn read_header<R: Read>(mut r: R) -> CarResult<CarHeader> {
     r.read_exact(&mut header_buf)?;
 
     let header_map: Ipld = DagCborCodec.decode(&header_buf)?;
+
     match header_map.get("version") {
         Ok(Ipld::Integer(version)) => match &version {
-            1 => Ok(CarHeader::V1(v1::parse_v1_header(header_map)?)),
             2 => {
                 let mut v2_header_buf = [0; HEADER_LENGTH];
                 r.read_exact(&mut v2_header_buf)?;
@@ -92,24 +93,26 @@ fn read_header<R: Read>(mut r: R) -> CarResult<CarHeader> {
 
 impl ContentArchive {
     pub fn read_bytes<R: Read + Seek>(mut r: R) -> CarResult<ContentArchive> {
-        let header = read_header(&mut r)?;
-        match header {
-            CarHeader::V1(header) => {
-                Ok(ContentArchive::V1(v1::CarV1::new(header, v1::read_car_v1_data(r)?)))
+        CarV1::from_reader(&mut r).map(ContentArchive::V1).or_else(|_| {
+            r.seek(std::io::SeekFrom::Start(0))?;
+            let header = read_header(&mut r)?;
+
+            match header {
+                CarHeader::V2(header) => {
+                    r.seek(std::io::SeekFrom::Start(header.data_offset))?;
+                    let mut car_v1_buf = vec![0u8; header.data_size as usize];
+                    r.read_exact(&mut car_v1_buf)?;
+                    let mut reader = Cursor::new(car_v1_buf);
+                    let index_offset = header.index_offset;
+                    Ok(ContentArchive::V2(v2::CarV2::new(
+                        header,
+                        ContentArchive::read_bytes(&mut reader)?.try_into()?,
+                        v2::read_v2_index(&mut r, index_offset)?,
+                    )))
+                }
+                _ => Err(CarError::InvalidFormat),
             }
-            CarHeader::V2(header) => {
-                r.seek(std::io::SeekFrom::Start(header.data_offset))?;
-                let mut car_v1_buf = vec![0u8; header.data_size as usize];
-                r.read_exact(&mut car_v1_buf)?;
-                let mut reader = Cursor::new(car_v1_buf);
-                let index_offset = header.index_offset;
-                Ok(ContentArchive::V2(v2::CarV2::new(
-                    header,
-                    ContentArchive::read_bytes(&mut reader)?.try_into()?,
-                    v2::read_v2_index(&mut r, index_offset)?,
-                )))
-            }
-        }
+        })
     }
 }
 

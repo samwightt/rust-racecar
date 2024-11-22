@@ -1,6 +1,7 @@
 use std::io::{Read, Seek};
 use byteorder::{LittleEndian, ByteOrder};
-use crate::{v1, CarResult, CHARACTERISTICS_LENGTH, HEADER_LENGTH};
+use libipld::Ipld;
+use crate::{v1, CarError, CarResult, CHARACTERISTICS_LENGTH, HEADER_LENGTH};
 use unsigned_varint::io::read_u64 as varint_read_u64;
 
 /// An IPLD Content Archive Version 2; wraps a CAR Version 1
